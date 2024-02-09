@@ -30,3 +30,25 @@
 .focus\:border-orange-500:focus {
     border-color: #F59B00;
 }
+
+
+#recordButton {
+    margin-right: 0.5rem;
+    background-color: #008f00;
+    border-radius: 50%;
+    border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#recordButton.recording {
+    background-color: #8f0000;
+}
+
+#recordButton img {
+    width: 50%;
+    height: 50%;
+}
