@@ -4,6 +4,8 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForCausalLM, BitsAndBytesConfig, GenerationConfig
 from peft import PeftModel
 
+import whisper
+
 app = flask.Flask(__name__)
 app.debug = True
 
@@ -50,6 +52,8 @@ base_model = AutoModelForCausalLM.from_pretrained(
 )
 generativeModel = PeftModel.from_pretrained(base_model, adapter_path)
 generativeModel.eval()
+
+speechModel = whisper.load_model("small")
 
 @app.route('/', methods=['GET'])
 def index():
