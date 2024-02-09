@@ -6,6 +6,10 @@ from peft import PeftModel
 
 import whisper
 
+import io
+import numpy as np
+from pydub import AudioSegment
+
 app = flask.Flask(__name__)
 app.debug = True
 
@@ -53,7 +57,7 @@ modules = ['about', 'accarea', 'access', 'address', 'addrtyp', 'advancedSearch',
 # generativeModel = PeftModel.from_pretrained(base_model, adapter_path)
 # generativeModel.eval()
 
-# speechModel = whisper.load_model("small")
+speechModel = whisper.load_model("small")
 
 def queryModuleName(text):
     inputs = classificationTokenizer(text, return_tensors="pt")
@@ -94,18 +98,14 @@ def queryModuleDescription(text):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if flask.request.method == 'POST':
-        # if "audio" in flask.request.files:
-        #     blob = flask.request.files["audio"].read()
-        #     print(blob)
-        #     text = speechModel.transcribe(blob)
+        if "audio" in flask.request.files:
+            blob = flask.request.files["audio"].read()
+            sound = AudioSegment.from_file(io.BytesIO(blob))
+            sound.export("temp.wav", format="wav")
+            transcribed = speechModel.transcribe("temp.wav")
+            print(transcribed["text"])
 
-        #     response = queryModuleName(text)
-
-        data = flask.request.get_json()
-        print(data)
-        text = data["text"]
-        response = "response"
-        return flask.make_response(flask.jsonify({"response": response}), 200)
+            return flask.make_response(flask.jsonify({"transcription": transcribed["text"]}), 200)
 
     return flask.render_template('index.html')
 
