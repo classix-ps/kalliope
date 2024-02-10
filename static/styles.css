@@ -52,3 +52,8 @@
     width: 50%;
     height: 50%;
 }
+
+a {
+    color: #3490dc !important;
+    text-decoration: none;
+}

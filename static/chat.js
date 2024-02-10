@@ -3,7 +3,7 @@ function chatBot() {
         botTyping: false,
         messages: [{
             from: 'bot',
-            text: 'Wie kann ich Ihnen behilflich sein?'
+            text: 'How may I be of service?'
         }],
         mediaRecorder: null,
         audioChunks: [],
@@ -32,17 +32,14 @@ function chatBot() {
                         document.getElementById('micIcon').classList.add("fa-microphone");
                         document.getElementById('recordButton').classList.remove('recording');
                         console.log('Recording ended');
-                    
-                        // Create a new Blob containing the recorded audio
+
                         const audioBlob = new Blob(this.audioChunks, { type: 'audio/chunks[0].type' });
                         // alert(audioBlob.size)
-                    
-                        // Create FormData object to send audio file to server
+
                         const formData = new FormData();
                         formData.append('audio', audioBlob);
                         // alert(formData.get('audio'))
-                    
-                        // Send POST request to server
+
                         let self = this;
                         $.ajax({
                             type: 'POST',
@@ -65,20 +62,15 @@ function chatBot() {
                 });
         },
         output: function(input) {
-            // Add user message
             this.messages.push({
                 from: 'user',
                 text: input
             });
 
-            // Keep messages at most recent
             this.scrollChat();
-
-
             this.botTyping = true;
             this.scrollChat();
 
-            let product = 'Cool!';
             let self = this;
             $.ajax({
                 type: 'POST',
@@ -87,7 +79,11 @@ function chatBot() {
                 success: function(response) {
                     product = response["output"];
                     if (product === '') {
-                        product = 'Sorry, I did not understand your request. Please try again.';
+                        product = 'Sorry, I am not able to provide a module the fulfills your request. Please try again.';
+                    }
+                    else {
+                        product = 'The module that best fulfills your request is: ' + product + '.';
+                        product = product + "<a href='#0' @click.stop='more(\"" + response["output"] + "\")'> Tell me more.</a>";
                     }
                     self.botTyping = false;
                     self.messages.push({
@@ -98,6 +94,48 @@ function chatBot() {
                 },
                 error: function(error) {
                     console.error(error);
+                    self.botTyping = false;
+                    self.messages.push({
+                        from: 'bot',
+                        text: 'Sorry, an error occured. Please try again.'
+                    });
+                    self.scrollChat();
+                }
+            });
+        },
+        more: function(module) {
+            let input = 'Tell me about ' + module + '.';
+            this.messages.push({
+                from: 'user',
+                text: input
+            });
+
+            this.scrollChat();
+            this.botTyping = true;
+            this.scrollChat();
+
+            let self = this;
+            $.ajax({
+                type: 'POST',
+                url: '/query/describe',
+                data: { text: input },
+                success: function(response) {
+                    product = response["output"];
+                    self.botTyping = false;
+                    self.messages.push({
+                        from: 'bot',
+                        text: product
+                    });
+                    self.scrollChat();
+                },
+                error: function(error) {
+                    console.error(error);
+                    self.botTyping = false;
+                    self.messages.push({
+                        from: 'bot',
+                        text: 'Sorry, an error occured. Please try again.'
+                    });
+                    self.scrollChat();
                 }
             });
         },

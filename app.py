@@ -39,25 +39,25 @@ classificationModel = AutoModelForSequenceClassification.from_pretrained(f"../ql
 classificationTokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 threshold = 0.5
 
-# generativeModel = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
-# generativeTokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
-# adapter_path = "output/adapter_model"
-# # Fixing some of the early LLaMA HF conversion issues.
-# generativeTokenizer.bos_token_id = 1
-# base_model = AutoModelForCausalLM.from_pretrained(
-#     "meta-llama/Llama-2-7b-hf",
-#     torch_dtype=torch.bfloat16,
-#     device_map={"": 0},
-#     load_in_4bit=True,
-#     quantization_config=BitsAndBytesConfig(
-#         load_in_4bit=True,
-#         bnb_4bit_compute_dtype=torch.bfloat16,
-#         bnb_4bit_use_double_quant=True,
-#         bnb_4bit_quant_type='nf4',
-#     )
-# )
-# generativeModel = PeftModel.from_pretrained(base_model, adapter_path)
-# generativeModel.eval()
+generativeModel = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
+generativeTokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
+adapter_path = "../analysis/alpaca-2-7b-r64/checkpoint-1875/adapter_model"
+# Fixing some of the early LLaMA HF conversion issues.
+generativeTokenizer.bos_token_id = 1
+base_model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-2-7b-hf",
+    torch_dtype=torch.bfloat16,
+    device_map={"": 0},
+    load_in_4bit=True,
+    quantization_config=BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type='nf4',
+    )
+)
+generativeModel = PeftModel.from_pretrained(base_model, adapter_path)
+generativeModel.eval()
 
 speechModel = whisper.load_model("small")
 
@@ -72,7 +72,7 @@ def query(type):
                 response = modules[int(output['label'].replace('LABEL_', ''))]
             else:
                 response = ""
-        else:
+        elif type == "describe":
             promptAlpaca = f"Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{text}\n\nResponse:"
 
             inputs = generativeTokenizer(promptAlpaca, return_tensors="pt").to('cuda')
