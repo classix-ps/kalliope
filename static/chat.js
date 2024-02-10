@@ -74,23 +74,32 @@ function chatBot() {
             // Keep messages at most recent
             this.scrollChat();
 
-            // Fake delay to seem "real"
-            setTimeout(() => {
-                this.botTyping = true;
-                this.scrollChat();
-            }, 500)
+
+            this.botTyping = true;
+            this.scrollChat();
 
             let product = 'Cool!';
-
-            // add bit message with Fake delay to seem "real"
-            setTimeout(() => {
-                this.botTyping = false;
-                this.messages.push({
-                    from: 'bot',
-                    text: product
-                });
-                this.scrollChat();
-            }, ((product.length / 10) * 1000) + (Math.floor(Math.random() * 2000) + 1500))
+            let self = this;
+            $.ajax({
+                type: 'POST',
+                url: '/query/name',
+                data: { text: input },
+                success: function(response) {
+                    product = response["output"];
+                    if (product === '') {
+                        product = 'Sorry, I did not understand your request. Please try again.';
+                    }
+                    self.botTyping = false;
+                    self.messages.push({
+                        from: 'bot',
+                        text: product
+                    });
+                    self.scrollChat();
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
         },
         scrollChat: function() {
             const messagesContainer = document.getElementById("messages");
