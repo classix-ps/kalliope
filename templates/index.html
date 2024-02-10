@@ -38,7 +38,7 @@
                         <div class="flex items-end" :class="message.from=='bot'?'':'justify-end'">
                             <div class="flex flex-col space-y-2 text-md leading-tight max-w-lg mx-2" :class="message.from=='bot'?'order-2 items-start':'order-1 items-end'">
                                 <div>
-                                    <span class="px-4 py-3 rounded-xl inline-block" :class="message.from=='bot'?'rounded-bl-none bg-gray-100 text-gray-600':'rounded-br-none bg-orange-500 text-white'" x-html="message.text"></span>
+                                    <span class="px-4 py-3 rounded-xl inline-block" :class="message.from=='bot'?'rounded-bl-none bg-gray-100 text-gray-600':'rounded-br-none bg-orange-500 text-white'"><p x-text="message.text"></p><a href="#" x-show="message.more" @click.stop="more(message.more)">Tell me more.</a></span>
                                 </div>
                             </div>
                             <img :src="message.from=='bot'?'https://cdn.icon-icons.com/icons2/1371/PNG/512/robot02_90810.png':'https://i.pravatar.cc/100?img=7'" alt="" class="w-6 h-6 rounded-full" :class="message.from=='bot'?'order-1':'order-2'">

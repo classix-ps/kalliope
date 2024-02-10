@@ -39,7 +39,6 @@ classificationModel = AutoModelForSequenceClassification.from_pretrained(f"../ql
 classificationTokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 threshold = 0.5
 
-generativeModel = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
 generativeTokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
 adapter_path = "../analysis/alpaca-2-7b-r64/checkpoint-1875/adapter_model"
 # Fixing some of the early LLaMA HF conversion issues.

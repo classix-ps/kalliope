@@ -77,19 +77,22 @@ function chatBot() {
                 url: '/query/name',
                 data: { text: input },
                 success: function(response) {
-                    product = response["output"];
-                    if (product === '') {
-                        product = 'Sorry, I am not able to provide a module the fulfills your request. Please try again.';
+                    let message = {
+                        from: 'bot',
+                        text: '',
+                        more: null
+                    };
+                
+                    if (response["output"] === '') {
+                        message.text = 'Sorry, I am not able to provide a module the fulfills your request. Please try again.';
                     }
                     else {
-                        product = 'The module that best fulfills your request is: ' + product + '.';
-                        product = product + "<a href='#0' @click.stop='more(\"" + response["output"] + "\")'> Tell me more.</a>";
+                        message.text = 'The module that best fulfills your request is: ' + response["output"] + '.';
+                        message.more = response["output"];
                     }
+                
                     self.botTyping = false;
-                    self.messages.push({
-                        from: 'bot',
-                        text: product
-                    });
+                    self.messages.push(message);
                     self.scrollChat();
                 },
                 error: function(error) {
