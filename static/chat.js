@@ -8,6 +8,7 @@ function chatBot() {
         mediaRecorder: null,
         audioChunks: [],
         isRecording: false,
+        mode: 'classification',
         init: function() {
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
@@ -67,6 +68,13 @@ function chatBot() {
                 text: 'How may I be of service?'
             }]
         },
+        switchMode: function() {
+            if (this.mode === 'classification') {
+                this.mode = 'generation';
+            } else {
+                this.mode = 'classification';
+            }
+        },
         output: function(input) {
             this.messages.push({
                 from: 'user',
@@ -78,39 +86,65 @@ function chatBot() {
             this.scrollChat();
 
             let self = this;
-            $.ajax({
-                type: 'POST',
-                url: '/query/name',
-                data: { text: input },
-                success: function(response) {
-                    let message = {
-                        from: 'bot',
-                        text: '',
-                        more: null
-                    };
-                
-                    if (response["output"] === '') {
-                        message.text = 'Sorry, I am not able to provide a module the fulfills your request. Please try again.';
+            if (this.mode === 'classification') {
+                $.ajax({
+                    type: 'POST',
+                    url: '/query/name',
+                    data: { text: input },
+                    success: function(response) {
+                        let message = {
+                            from: 'bot',
+                            text: '',
+                            more: null
+                        };
+                    
+                        if (response["output"] === '') {
+                            message.text = 'Sorry, I am not able to provide a module the fulfills your request. Please try again.';
+                        }
+                        else {
+                            message.text = 'The module that best fulfills your request is: ' + response["output"] + '.';
+                            message.more = response["output"];
+                        }
+                    
+                        self.botTyping = false;
+                        self.messages.push(message);
+                        self.scrollChat();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                        self.botTyping = false;
+                        self.messages.push({
+                            from: 'bot',
+                            text: 'Sorry, an error occured. Please try again.'
+                        });
+                        self.scrollChat();
                     }
-                    else {
-                        message.text = 'The module that best fulfills your request is: ' + response["output"] + '.';
-                        message.more = response["output"];
+                });
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: '/query/describe',
+                    data: { text: input },
+                    success: function(response) {
+                        product = response["output"];
+                        self.botTyping = false;
+                        self.messages.push({
+                            from: 'bot',
+                            text: product
+                        });
+                        self.scrollChat();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                        self.botTyping = false;
+                        self.messages.push({
+                            from: 'bot',
+                            text: 'Sorry, an error occured. Please try again.'
+                        });
+                        self.scrollChat();
                     }
-                
-                    self.botTyping = false;
-                    self.messages.push(message);
-                    self.scrollChat();
-                },
-                error: function(error) {
-                    console.error(error);
-                    self.botTyping = false;
-                    self.messages.push({
-                        from: 'bot',
-                        text: 'Sorry, an error occured. Please try again.'
-                    });
-                    self.scrollChat();
-                }
-            });
+                });
+            }
         },
         more: function(module) {
             let input = 'Tell me about ' + module + '.';
