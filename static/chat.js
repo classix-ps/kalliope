@@ -61,6 +61,12 @@ function chatBot() {
                     console.error('Error accessing microphone:', error);
                 });
         },
+        clearChat: function() {
+            this.messages= [{
+                from: 'bot',
+                text: 'How may I be of service?'
+            }]
+        },
         output: function(input) {
             this.messages.push({
                 from: 'user',
