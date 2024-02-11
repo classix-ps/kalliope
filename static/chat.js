@@ -8,7 +8,6 @@ function chatBot() {
         mediaRecorder: null,
         audioChunks: [],
         isRecording: false,
-        mode: 'classification',
         init: function() {
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
@@ -86,7 +85,7 @@ function chatBot() {
             this.scrollChat();
 
             let self = this;
-            if (this.mode === 'classification') {
+            if (!document.getElementById('mode').checked) {
                 $.ajax({
                     type: 'POST',
                     url: '/query/name',

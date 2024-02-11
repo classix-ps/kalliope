@@ -38,7 +38,7 @@ modules = ['about', 'accarea', 'access', 'address', 'addrtyp', 'advancedSearch',
 classificationModel = AutoModelForSequenceClassification.from_pretrained(f"bert")
 classificationTokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 threshold = 0.5
-"""
+
 generativeTokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
 adapter_path = "llama"
 # Fixing some of the early LLaMA HF conversion issues.
@@ -57,7 +57,7 @@ base_model = AutoModelForCausalLM.from_pretrained(
 )
 generativeModel = PeftModel.from_pretrained(base_model, adapter_path)
 generativeModel.eval()
-"""
+
 speechModel = whisper.load_model("small")
 
 @app.route('/query/<string:type>', methods=['POST'])
@@ -72,7 +72,7 @@ def query(type):
             else:
                 response = ""
         elif type == "describe":
-            return flask.make_response(flask.jsonify({"output": "Testing description"}), 200)
+            #return flask.make_response(flask.jsonify({"output": "Testing description"}), 200)
             promptAlpaca = f"Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{text}\n\nResponse:"
 
             inputs = generativeTokenizer(promptAlpaca, return_tensors="pt").to('cuda')
@@ -81,9 +81,10 @@ def query(type):
                 **inputs, 
                 generation_config=GenerationConfig(
                     do_sample=True,
-                    max_new_tokens=2000,
+                    max_new_tokens=256,
                     top_p=1,
                     temperature=0.01,
+                    repetition_penalty=1.1,
                 )
             )
 
